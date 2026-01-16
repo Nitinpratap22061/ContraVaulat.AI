@@ -1,12 +1,12 @@
 import React from 'react';
 import { TodoItem } from './TodoItem';
 
-export const TodoList = ({ todos, loading, error, onToggle, onDelete }) => {
+export const TodoList = ({ todos, loading, error, onToggle, onDelete, onEdit }) => {
   if (loading) {
     return (
       <div className="text-center py-12">
         <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-        <p className="mt-4 text-gray-600">Loading todos...</p>
+        <p className="mt-4 text-gray-600 dark:text-gray-400">Loading todos...</p>
       </div>
     );
   }
@@ -21,8 +21,8 @@ export const TodoList = ({ todos, loading, error, onToggle, onDelete }) => {
 
   if (todos.length === 0) {
     return (
-      <div className="bg-white rounded-lg p-12 text-center">
-        <p className="text-gray-500 text-lg">No todos yet. Add one to get started!</p>
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-12 text-center">
+        <p className="text-gray-500 dark:text-gray-400 text-lg">No todos found!</p>
       </div>
     );
   }
@@ -35,6 +35,7 @@ export const TodoList = ({ todos, loading, error, onToggle, onDelete }) => {
           todo={todo}
           onToggle={onToggle}
           onDelete={onDelete}
+          onEdit={onEdit}
         />
       ))}
     </div>

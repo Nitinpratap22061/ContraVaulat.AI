@@ -1,40 +1,38 @@
-import React, { useState, useMemo } from 'react'; // useMemo add karo
+import React, { useState } from 'react';
 import { Header } from './components/Header';
 import { TodoInput } from './components/TodoInput';
-import { SearchBar } from './components/SearchBar'; // ⭐ NEW IMPORT
+import { SearchBar } from './components/SearchBar';
 import { FetchControls } from './components/FetchControls';
 import { Statistics } from './components/Statistics';
 import { TodoList } from './components/TodoList';
 import { useTodos } from './hooks/useTodos';
-import { filterTodos } from './utils/todoHelpers'; // ⭐ NEW IMPORT
 
 function App() {
   const {
     todos,
+    allTodos,
     loading,
     error,
     limit,
+    filter,
+    searchQuery,
     updateLimit,
     fetchTodos,
     addTodo,
     toggleTodo,
-    deleteTodo
+    deleteTodo,
+    editTodo,
+    setFilter,
+    setSearchQuery
   } = useTodos(10);
 
   const [newTodo, setNewTodo] = useState('');
-  const [searchQuery, setSearchQuery] = useState(''); // ⭐ NEW STATE
 
   const handleAddTodo = () => {
     if (addTodo(newTodo)) {
       setNewTodo('');
     }
   };
-
-  // ⭐ NEW: Filter todos based on search
-  const filteredTodos = useMemo(() => 
-    filterTodos(todos, searchQuery), 
-    [todos, searchQuery]
-  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
@@ -48,30 +46,31 @@ function App() {
             onAdd={handleAddTodo}
           />
 
-          {/* ⭐ NEW: SearchBar Component */}
           <SearchBar 
             value={searchQuery} 
             onChange={setSearchQuery}
-            resultsCount={filteredTodos.length}
+            resultsCount={todos.length}
+            totalCount={allTodos.length}
           />
 
           <FetchControls
             limit={limit}
             onLimitChange={updateLimit}
             onRefresh={fetchTodos}
+            filter={filter}
+            onFilterChange={setFilter}
           />
 
-          {/* CHANGE: todos -> filteredTodos */}
-          <Statistics todos={filteredTodos} />
+          <Statistics todos={todos} />
         </div>
 
-        {/* CHANGE: todos -> filteredTodos */}
         <TodoList
-          todos={filteredTodos}
+          todos={todos}
           loading={loading}
           error={error}
           onToggle={toggleTodo}
           onDelete={deleteTodo}
+          onEdit={editTodo}
         />
       </div>
     </div>

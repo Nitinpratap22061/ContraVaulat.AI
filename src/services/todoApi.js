@@ -1,10 +1,11 @@
 const API_BASE_URL = 'https://dummyjson.com';
 
 export const todoApi = {
-  // Fetch todos from API
   fetchTodos: async (limit = 10) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/todos?limit=${limit}`);
+      // ✅ Random skip value to get different todos each time
+      const skip = Math.floor(Math.random() * 100);
+      const response = await fetch(`${API_BASE_URL}/todos?limit=${limit}&skip=${skip}`);
       if (!response.ok) {
         throw new Error('Failed to fetch todos');
       }

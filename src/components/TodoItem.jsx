@@ -3,33 +3,26 @@ import { Check, Trash2, Edit2, Save, X, Calendar, AlertCircle } from 'lucide-rea
 
 export const TodoItem = ({ todo, onToggle, onDelete, onEdit }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editText, setEditText] = useState(todo.todo);
+  const [editText, setEditText] = useState(todo.todo || '');
 
   const handleSave = () => {
-    if (editText.trim()) {
+    if (editText && editText.trim()) {
       onEdit(todo.id, editText.trim());
       setIsEditing(false);
     }
   };
 
   const handleCancel = () => {
-    setEditText(todo.todo);
+    setEditText(todo.todo || '');
     setIsEditing(false);
   };
 
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case 'high': return 'border-l-4 border-red-500';
-      case 'medium': return 'border-l-4 border-yellow-500';
-      case 'low': return 'border-l-4 border-green-500';
-      default: return '';
-    }
-  };
+  
 
   const isOverdue = todo.dueDate && new Date(todo.dueDate) < new Date() && !todo.completed;
 
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 hover:shadow-lg transition ${getPriorityColor(todo.priority)}`}>
+    <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 hover:shadow-lg transition)}`}>
       <div className="flex items-start gap-4">
         <button
           onClick={() => onToggle(todo.id)}
@@ -54,7 +47,7 @@ export const TodoItem = ({ todo, onToggle, onDelete, onEdit }) => {
           ) : (
             <>
               <p className={`text-lg ${todo.completed ? 'line-through text-gray-400' : 'text-gray-800 dark:text-white'}`}>
-                {todo.todo}
+                {todo.todo || 'Untitled'}
               </p>
               
               {todo.dueDate && (

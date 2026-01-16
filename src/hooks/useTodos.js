@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useRef } from 'react';
 import { todoApi } from '../services/todoApi';
-import { createNewTodo } from '../utils/todoHelpers';
 
 export const useTodos = (initialLimit = 10) => {
   const [todos, setTodos] = useState([]);
@@ -9,22 +9,7 @@ export const useTodos = (initialLimit = 10) => {
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  // Load dark mode preference
-  useEffect(() => {
-    const savedMode = localStorage.getItem('darkMode') === 'true';
-    setIsDarkMode(savedMode);
-    if (savedMode) {
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle('dark');
-    localStorage.setItem('darkMode', (!isDarkMode).toString());
-  };
+  const fetchTimeoutRef = useRef(null);
 
   const fetchTodos = async () => {
     setLoading(true);
@@ -39,20 +24,25 @@ export const useTodos = (initialLimit = 10) => {
     }
   };
 
-  const addTodo = (todoData) => {
-    if (todoData.text.trim()) {
-      const newTodo = {
-        id: Date.now(),
-        todo: todoData.text,
-        completed: false,
-        userId: 1,
-        priority: todoData.priority || 'medium',
-        dueDate: todoData.dueDate || null
-      };
-      setTodos([newTodo, ...todos]);
-      return true;
+  const addTodo = (todoText) => {
+    if (!todoText || typeof todoText !== 'string') {
+      return false;
     }
-    return false;
+    
+    const trimmedText = todoText.trim();
+    if (!trimmedText) {
+      return false;
+    }
+    
+    const newTodo = {
+      id: Date.now(),
+      todo: trimmedText,
+      completed: false,
+      userId: 1
+    };
+    
+    setTodos([newTodo, ...todos]);
+    return true;
   };
 
   const toggleTodo = (id) => {
@@ -66,9 +56,13 @@ export const useTodos = (initialLimit = 10) => {
   };
 
   const editTodo = (id, newText) => {
-    setTodos(todos.map(todo =>
-      todo.id === id ? { ...todo, todo: newText } : todo
-    ));
+    if (newText.trim()) {
+      setTodos(todos.map(todo =>
+        todo.id === id ? { ...todo, todo: newText.trim() } : todo
+      ));
+      return true;
+    }
+    return false;
   };
 
   const updateLimit = (newLimit) => {
@@ -79,14 +73,12 @@ export const useTodos = (initialLimit = 10) => {
   const getFilteredTodos = () => {
     let filtered = todos;
 
-    // Apply filter
     if (filter === 'active') {
       filtered = filtered.filter(t => !t.completed);
     } else if (filter === 'completed') {
       filtered = filtered.filter(t => t.completed);
     }
 
-    // Apply search
     if (searchQuery) {
       filtered = filtered.filter(t =>
         t.todo.toLowerCase().includes(searchQuery.toLowerCase())
@@ -96,8 +88,21 @@ export const useTodos = (initialLimit = 10) => {
     return filtered;
   };
 
+  // ✅ Debounced fetch - Wait 500ms after slider stops moving
   useEffect(() => {
-    fetchTodos();
+    if (fetchTimeoutRef.current) {
+      clearTimeout(fetchTimeoutRef.current);
+    }
+
+    fetchTimeoutRef.current = setTimeout(() => {
+      fetchTodos();
+    }, 500);
+
+    return () => {
+      if (fetchTimeoutRef.current) {
+        clearTimeout(fetchTimeoutRef.current);
+      }
+    };
   }, [limit]);
 
   return {
@@ -108,7 +113,6 @@ export const useTodos = (initialLimit = 10) => {
     limit,
     filter,
     searchQuery,
-    isDarkMode,
     updateLimit,
     fetchTodos,
     addTodo,
@@ -116,7 +120,6 @@ export const useTodos = (initialLimit = 10) => {
     deleteTodo,
     editTodo,
     setFilter,
-    setSearchQuery,
-    toggleDarkMode
+    setSearchQuery
   };
 };
