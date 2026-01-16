@@ -24,7 +24,7 @@ export const TodoInput = ({ value, onChange, onAdd }) => {
           value={value || ''}
           onChange={(e) => onChange(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="What needs to be done?"
+          placeholder="Add Your Own Todo.."
           className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
           aria-label="New todo"
         />
